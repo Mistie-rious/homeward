@@ -243,28 +243,32 @@ details[open] summary { margin-bottom: 12px; }
 .potd .small-btn { background: rgba(255, 255, 255, 0.14); color: #fff7e6; border: 0; }
 .potd .small-btn:disabled { opacity: 0.7; }
 
-/* Today's path: stops on a trail that ends at home */
-.path-title { margin: 0 0 6px; font: 800 1.15rem/1.2 var(--display); }
-.trail { list-style: none; margin: 0 0 10px; padding: 0; }
-.stop { position: relative; padding-left: 52px; }
-.stop::before { content: ""; position: absolute; left: 21px; top: 0; bottom: 0; border-left: 3px dotted var(--line-strong); }
-.stop:first-child::before { top: 24px; }
-.stop:last-child::before { bottom: auto; height: 24px; }
-.stop a, .stop .stop-row { display: flex; align-items: center; gap: 10px; padding: 12px 8px 12px 0; color: inherit; min-height: 62px; }
-.stop strong { font-size: 1.02rem; }
-.stop small { color: var(--muted); font-size: 0.84rem; margin-top: 1px; }
-.node {
-  position: absolute; left: 6px; top: 50%; margin-top: -16px; width: 32px; height: 32px; border-radius: 50% 44% 50% 46%;
-  display: grid; place-items: center; font-weight: 800; font-size: 0.9rem;
-  background: var(--card); border: 2px solid var(--line-strong); color: var(--muted);
+/* Today: one suggested next step, then four organic tiles */
+.continue {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding: 16px 18px; color: var(--on-accent);
+  background: var(--purple); border-radius: 36px 44px 34px 42px / 42px 34px 44px 36px; box-shadow: var(--shadow-lift);
 }
-.stop.next .node { background: var(--purple); border-color: var(--purple); color: var(--on-accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--purple) 22%, transparent); }
-.stop.next strong { color: var(--purple); }
-.stop.done .node { background: var(--sage-soft); border-color: var(--sage); color: var(--sage); }
-.stop.done strong { color: var(--muted); font-weight: 600; }
-.stop.home .node { background: var(--mustard-soft); border-color: var(--mustard); color: var(--mustard); }
-.stop.home .node svg { width: 18px; height: 18px; }
-.stop.home.reached strong { color: var(--mustard); }
+.continue-icon { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 50% 46% 50% 44%; background: rgba(0, 0, 0, 0.14); }
+.continue-icon svg { width: 24px; height: 24px; }
+.continue small { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; }
+.continue strong { display: block; font-size: 1.2rem; line-height: 1.2; }
+.continue-detail { display: block; font-size: 0.88rem; opacity: 0.85; margin-top: 1px; }
+.continue .chev { color: inherit; font-size: 1.6rem; }
+.tiles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.tile-link {
+  --c: var(--purple); display: flex; flex-direction: column; gap: 3px; min-height: 118px; padding: 14px 16px; color: inherit;
+  background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+  border-radius: 34px 42px 32px 40px / 40px 32px 42px 34px;
+}
+.tile-link.v1 { border-radius: 42px 32px 40px 34px / 32px 42px 34px 40px; }
+.tile-link.v2 { border-radius: 32px 40px 42px 34px / 42px 34px 32px 40px; }
+.tile-link.v3 { border-radius: 40px 34px 32px 42px / 34px 40px 42px 32px; }
+.tile-link:active { opacity: 0.8; }
+.t-coral { --c: var(--coral); } .t-sage { --c: var(--sage); } .t-sky { --c: var(--sky); } .t-mustard { --c: var(--mustard); }
+.tile-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50% 44% 50% 46%; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); margin-bottom: 6px; }
+.tile-icon svg { width: 20px; height: 20px; }
+.tile-link strong { font-size: 1.05rem; }
+.tile-link small { color: var(--muted); font-size: 0.82rem; line-height: 1.3; }
 
 /* ── Review ── */
 .flash { min-height: 250px; padding: 24px 20px; position: relative; cursor: pointer; margin-bottom: 22px; }
