@@ -3,6 +3,7 @@ import { MODELS, getKey, getModel, setKey, setModel, structured, usageSince } fr
 import { dailyGoalMin, fmtDuration, lastDays, setDailyGoalMin } from "../screentime.js";
 import { LEVELS } from "../content.js";
 import { stats as getStats } from "../progress.js";
+import { setShowPron, showPron } from "../pronounce.js";
 import { busy, fmtDay, getTheme, getYoFont, go, html, localDate, mark, setTheme, setYoFont, toast } from "../util.js";
 
 // ---------- stats ----------
@@ -206,6 +207,11 @@ export function settingsView(root) {
       <p class="small muted">If tone marks or underdots look misplaced in Serif on your phone, use Clean.</p>
     </div>
     <div class="card stack">
+      <strong>Pronunciation guide</strong>
+      <label class="check small"><input type="checkbox" id="pron" ${showPron() ? "checked" : ""}> Show how to say each word and sentence (respelling with tone height, and IPA)</label>
+      <p class="small muted">Worked out from the spelling by rules, so it works offline for any text. Most phones have no Yoruba voice, so there is no audio; listen to a native speaker too.</p>
+    </div>
+    <div class="card stack">
       <strong>Claude API key</strong>
       <p class="small muted">Stored only on this phone (not in backups). Get one at console.anthropic.com and set a monthly spend limit there. Without a key, corrections, the question chat, conversations and the serial story are unavailable; the course, review, the dictionary and the built-in dialogues still work.</p>
       <input id="key" type="password" placeholder="sk-ant-…" value="${key}" autocomplete="off">
@@ -269,6 +275,7 @@ export function settingsView(root) {
     setTheme(b.dataset.theme);
     root.querySelectorAll("#theme button").forEach((x) => x.classList.toggle("on", x === b));
   };
+  root.querySelector("#pron").onchange = (e) => setShowPron(e.target.checked);
   root.querySelector("#yofont").onclick = (e) => {
     const b = e.target.closest("[data-yofont]");
     if (!b) return;

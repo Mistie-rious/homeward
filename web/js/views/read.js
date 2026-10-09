@@ -6,6 +6,7 @@ import {
 } from "../content.js";
 import { lemmaCandidates, lookup, stripSpeaker, tokenize } from "../nlp.js";
 import { pictureFor } from "../pictures.js";
+import { pronHtml } from "../pronounce.js";
 import { translate } from "../translate.js";
 import { GENRES, currentStory, endStory, episodes, nextEpisode, startStory, storyOf } from "../story.js";
 import { speakSequence, stopSpeaking } from "../speech.js";
@@ -244,6 +245,7 @@ export function reader(root, { params: [id] }) {
       if (current !== me) return;
       open(html`
         <p class="context">${sentence} <button class="say" data-say="${sentence}" aria-label="Play">🔊</button></p>
+        ${raw(pronHtml(sentence))}
         ${translationLine(me)}
         ${me.explain ? html`<ul class="notes">${me.explain.notes.map((n) => html`<li>${n}</li>`)}</ul>` : ""}
         ${me.enError && !me.explain ? html`<input id="m-translation" placeholder="Type your own translation">` : ""}
@@ -274,6 +276,7 @@ export function reader(root, { params: [id] }) {
       const g = me.gloss;
       open(html`
         <p class="big">${word} <button class="say" data-say="${word}" aria-label="Play">🔊</button>${g ? html` <span class="accent small">→ ${g.meaning}</span>` : ""}</p>
+        ${raw(pronHtml(word))}
         ${g ? html`
           <p><strong>${g.lemma}</strong> <small class="muted inline">${g.pos}</small> — ${g.lemma_meaning}</p>
           ${g.note ? html`<p class="note">${g.note}</p>` : ""}

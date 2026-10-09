@@ -6,7 +6,7 @@ const CACHE = `${PREFIX}v1`;
 const FILES = [
   "./", "index.html", "app.css", "manifest.webmanifest",
   "js/app.js", "js/util.js", "js/db.js", "js/srs.js", "js/nlp.js", "js/course.js", "js/basics.js", "js/claude.js", "js/correction.js",
-  "js/content.js", "js/progress.js", "js/seed.js", "js/translate.js", "js/answers.js", "js/speech.js", "js/chars.js", "js/pictures.js", "js/lessons.js", "js/talk.js", "js/story.js",
+  "js/content.js", "js/progress.js", "js/seed.js", "js/translate.js", "js/answers.js", "js/speech.js", "js/chars.js", "js/pictures.js", "js/pronounce.js", "js/lessons.js", "js/talk.js", "js/story.js",
   "js/views/today.js", "js/views/review.js", "js/views/read.js", "js/views/write.js", "js/views/me.js", "js/views/learn.js", "js/views/talk.js", "js/views/ask.js", "js/screentime.js",
   "vendor/sql-wasm.js", "vendor/sql-wasm.wasm", "vendor/ts-fsrs.js",
   "fonts/instrument-serif-latin-400-normal.woff2", "fonts/instrument-serif-latin-400-italic.woff2",

@@ -793,3 +793,59 @@ test("typing and answer cards use the picture lookup that matches how course ite
   const p = db.get("SELECT front FROM item WHERE ref = 'greetings:p:0'");
   assert.ok(pics.pictureFor(w.lemma) && pics.pictureFor(p.front));
 });
+
+// ───────── pronunciation guide ─────────
+
+test("pronunciation guide: syllables, tones, nasal vowels and respelling come from the spelling", async () => {
+  const pr = await import("../web/js/pronounce.js");
+  const t = (w) => pr.pronounce(w);
+  const tones = (w) => t(w).words.flat().map((s) => s.tone).join("");
+  assert.equal(t("ọmọ").ipa, "ɔ.mɔ");
+  assert.equal(t("ọmọ").say, "aw·maw");
+  assert.equal(t("káàárọ̀").ipa, "ká.à.á.ɾɔ̀");
+  assert.equal(tones("káàárọ̀"), "hlhl");
+  assert.equal(t("káàárọ̀").words[0].length, 4); // every vowel is a syllable
+  assert.equal(tones("ọmọ"), "mm");
+  assert.equal(t("ṣé").ipa, "ʃé");
+  assert.equal(t("ṣé").say, "shay");
+  assert.equal(t("pẹ̀lẹ́").ipa, "k͡pɛ̀.lɛ́"); // p is kp
+  assert.equal(t("pẹ̀lẹ́").say, "kpeh·leh");
+  assert.equal(t("ọgbọ̀n").words[0].length, 2); // gb is one sound, n nasalises the vowel
+  assert.match(t("ọgbọ̀n").ipa, /ɡ͡bɔ̃̀$/);
+  assert.equal(t("ọgbọ̀n").say, "aw·gbawn");
+  assert.equal(t("ẹ̀sàn-án").words[0].length, 3); // the hyphen separates syllables
+  assert.equal(t("ń").words[0][0].tone, "h"); // a lone nasal is a syllable
+  assert.equal(t("ń").say, "n");
+  assert.equal(tones("ìrẹsì"), "lml");
+  // typed with combining characters, capitalised, or as a sentence: same result
+  assert.equal(t("O\u0323mo\u0323").ipa, "ɔ.mɔ");
+  assert.equal(t("Mo ń lọ sí ọjà.").words.length, 5);
+  assert.equal(t("Mo ń lọ sí ọjà.").say, "moh n law see aw·jah");
+  // never throws, never invents output for non-words
+  assert.equal(t("").ipa, "");
+  assert.equal(t("123 ?!").say, "");
+  assert.doesNotThrow(() => t("xyz çñ 日本"));
+});
+
+test("every course word and sentence gets a pronunciation guide; HTML marks tone heights; it can be switched off", async () => {
+  const pr = await import("../web/js/pronounce.js");
+  for (const u of course.UNITS) {
+    for (const x of u.words) assert.ok(pr.pronounce(x.yo).words.length, x.yo);
+    for (const x of u.phrases) assert.ok(pr.pronounce(x.yo).words.length, x.yo);
+  }
+  const h = pr.pronHtml("káàárọ̀");
+  assert.match(h, /class="t-h">kah</);
+  assert.match(h, /class="t-l">ah</);
+  assert.match(h, /pron-ipa">\/ká\.à\.á\.ɾɔ̀\//);
+  assert.ok(!pr.pronHtml("<b>x</b>").includes("<b>")); // escaped
+  assert.equal(pr.pronHtml("zzz", { ipa: false }).includes("pron-ipa"), false);
+  await withStorage({ hw_pron: "0" }, async () => {
+    assert.equal(pr.showPron(), false);
+    assert.equal(pr.pronHtml("ọmọ"), "");
+    pr.setShowPron(true);
+    assert.equal(pr.showPron(), true);
+  });
+  // the guide appears wherever audio buttons did: Basics, review, Read, Add your own, lessons
+  for (const f of ["web/js/views/learn.js", "web/js/views/review.js", "web/js/views/read.js"]) assert.match(read(f), /pronHtml\(/, f);
+  assert.match(read("web/js/lessons.js"), /id: "guide"/);
+});

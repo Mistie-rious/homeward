@@ -7,6 +7,7 @@ import { addCourseItem, addUnit, addedRefs, progress, refOf } from "../basics.js
 import { GROUPS, LESSONS, lessonById } from "../lessons.js";
 import { lemmaCandidates, lookup } from "../nlp.js";
 import { pictureFor } from "../pictures.js";
+import { pronHtml } from "../pronounce.js";
 import { canSpeak, speak } from "../speech.js";
 import { queue, settings } from "../srs.js";
 import { myItemIds } from "../progress.js";
@@ -88,6 +89,7 @@ export function unitView(root, { params: [id], query }) {
           ${pictureFor(x.yo) ? html`<div class="pic-tile">${raw(pictureFor(x.yo, 64))}</div>` : ""}
           <div class="grow">
             <p class="big yo">${x.yo} ${sayBtn(x.yo)}</p>
+            ${raw(pronHtml(x.yo))}
             <p>${x.en}${x.pos ? html` <small class="muted inline">${x.pos}</small>` : ""}</p>
             ${x.ex ? html`<p class="ex yo">${x.ex} ${sayBtn(x.ex)}<span>${x.exEn}</span></p>` : ""}
             ${x.note ? html`<p class="small muted">${x.note}</p>` : ""}
@@ -168,6 +170,9 @@ export function lessonView(root, { params: [id] }) {
     b.textContent = "🔊";
     b.setAttribute("aria-label", "Pronounce");
     p.prepend(b);
+    // pronunciation guide under each example sentence (before the English line)
+    const guide = pronHtml(p.dataset.say, { ipa: false });
+    if (guide) p.querySelector("span:last-child")?.insertAdjacentHTML("beforebegin", guide);
   });
 }
 
@@ -212,6 +217,7 @@ export async function addView(root) {
       const first = entries[0];
       out.innerHTML = html`
         <p class="big">${text} <button class="say" data-say="${text}">🔊</button></p>
+        ${raw(pronHtml(text))}
         ${extra}
         <label class="small muted">Meaning to learn<input id="meaning" value="${en || (first ? first.gloss.split(/;\s*/).slice(0, 2).join("; ") : "")}"></label>
         ${entries.length ? html`<p class="small muted">Dictionary (tap one to use it):</p>
@@ -238,6 +244,7 @@ export async function addView(root) {
     } else {
       out.innerHTML = html`
         <p class="context">${text} <button class="say" data-say="${text}">🔊</button></p>
+        ${raw(pronHtml(text))}
         ${extra}
         <label class="small muted">Translation<textarea id="meaning" rows="2">${en}</textarea></label>
         <div id="notes"></div>

@@ -30,6 +30,31 @@ ${ex("sè", "to cook")}
 <p>When you type, leave the marks out if you must: the app counts a right answer with missing marks as <b>almost</b>, not wrong. But try to add them. The row of letters above the keyboard (ẹ ọ ṣ and the tone marks) works in every text box.</p>`,
   },
   {
+    id: "guide", group: "Sounds & writing", level: "A1", title: "How to read the pronunciation guide",
+    body: `
+<p>Under Yoruba words and sentences the app shows how to say them. It is worked out from the spelling by rules, which works well because Yoruba spelling is very regular: one letter is one sound, and every tone is written on the vowel. It is a guide, not a recording, so also listen to a native speaker when you can.</p>
+<h3>The respelling</h3>
+<p>Each syllable is respelled with English-style sounds and separated by a dot. Syllables with a <b>high</b> tone sit <b>higher</b> on the line, <b>low</b> ones sit <b>lower</b>, and <b>mid</b> ones are level:</p>
+<p class="ex">${"ọmọ"} → <span class="pron"><span class="pron-say"><span class="pw"><span class="t-m">aw</span><i>·</i><span class="t-m">maw</span></span></span></span><span>both syllables mid</span></p>
+<p class="ex">${"káàárọ̀"} → <span class="pron"><span class="pron-say"><span class="pw"><span class="t-h">kah</span><i>·</i><span class="t-l">ah</span><i>·</i><span class="t-h">ah</span><i>·</i><span class="t-l">raw</span></span></span></span><span>high · low · high · low</span></p>
+<table class="mini"><tr><th>written</th><th>say</th><th>like</th></tr>
+<tr><td>a</td><td>ah</td><td>"a" in <i>father</i></td></tr>
+<tr><td>e</td><td>ay</td><td>"ay" in <i>say</i>, no glide</td></tr>
+<tr><td>ẹ</td><td>eh</td><td>"e" in <i>bed</i></td></tr>
+<tr><td>i</td><td>ee</td><td>"ee" in <i>see</i></td></tr>
+<tr><td>o</td><td>oh</td><td>"o" in <i>go</i>, no glide</td></tr>
+<tr><td>ọ</td><td>aw</td><td>"aw" in <i>law</i></td></tr>
+<tr><td>u</td><td>oo</td><td>"oo" in <i>moon</i></td></tr>
+<tr><td>ṣ</td><td>sh</td><td>"sh" in <i>shoe</i></td></tr>
+<tr><td>gb</td><td>gb</td><td>one sound, lips and throat together</td></tr>
+<tr><td>p</td><td>kp</td><td>one sound, like "kp" said together</td></tr>
+<tr><td>vowel + n</td><td>…n</td><td>nasal vowel: <i>kan</i> → "kahn", with the n not fully pronounced</td></tr></table>
+<h3>The IPA line</h3>
+<p>The grey line between slashes is the International Phonetic Alphabet, for precision: the tone marks are the same acute and grave marks as in the spelling, and dots separate syllables.</p>
+<p>A lone <b>ń</b> or <b>ǹ</b> is a syllable by itself, shown as "n". Hyphens (as in <i>ẹ̀sàn-án</i>) mark where one syllable ends and the next begins.</p>
+<p>You can switch the guide off in Settings.</p>`,
+  },
+  {
     id: "tones", group: "Sounds & writing", level: "A1", title: "The three tones",
     body: `
 <p>Yoruba is a tonal language. Every syllable has one of three tones, and the tone is part of the word.</p>

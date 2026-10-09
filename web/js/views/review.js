@@ -1,5 +1,6 @@
 import { run } from "../db.js";
 import { pictureFor } from "../pictures.js";
+import { pronHtml } from "../pronounce.js";
 import { previews, queue, review, settings } from "../srs.js";
 import { myItemIds, reviewedToday, todaysMistakeIds } from "../progress.js";
 import { fmtInterval, go, html, mark, raw } from "../util.js";
@@ -52,6 +53,7 @@ export default function reviewView(root, { query }) {
         <p class="small muted">Tone marks and underdots help, but leaving them out only counts as “almost”.</p>
         <div class="answer">
           <p class="big accent yo">${card.front} ${say(card.front)}</p>
+          ${raw(pronHtml(card.front))}
           ${card.context ? html`<p class="context yo">${mark(card.context)}</p>` : ""}
           ${card.note ? html`<p class="note">${card.note}</p>` : ""}
         </div>`
@@ -61,6 +63,7 @@ export default function reviewView(root, { query }) {
         <p class="context yo">${card.front} ${say(card.front)}</p>
         <div class="answer">
           ${picTile}
+          ${raw(pronHtml(card.front))}
           <p class="context accent">${card.back}</p>
           ${card.note ? html`<p class="note">${card.note}</p>` : ""}
         </div>`
@@ -71,6 +74,7 @@ export default function reviewView(root, { query }) {
         <div class="answer">
           ${picTile}
           <p class="big yo">${card.front} ${say(card.front)}</p>
+          ${raw(pronHtml(card.front))}
           <p class="big accent">${card.back}</p>
           ${card.context_en ? html`<p class="muted">${card.context_en}</p>` : ""}
           ${card.note ? html`<p class="note">${card.note}</p>` : ""}
