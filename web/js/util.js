@@ -97,7 +97,7 @@ export function applyTheme() {
   document.documentElement.dataset.theme = t;
   document.documentElement.dataset.yofont = getYoFont();
   const dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0e1813" : "#f3efe2");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#17100c" : "#f1e7d6");
 }
 
 // ---- navigation ----
