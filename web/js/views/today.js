@@ -66,7 +66,7 @@ export default function today(root) {
       <p class="wordmark">Homeward</p>
       <h1 class="yo">${greeting}!</h1>
       <p class="date yo">${date}</p>
-      <div class="sticker"><div><b>${n}</b><small>day${n === 1 ? "" : "s"} 🔥</small></div></div>
+      <div class="sticker"><div><b>${n}</b><small>day${n === 1 ? "" : "s"} <svg class="leaf" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14C2 7 6 2 14 2c0 8-4 12-10 12" fill="currentColor"/><path d="M2 14L9 7" stroke="var(--sticker-vein, #16241d)" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg></small></div></div>
     </header>
     <div class="card potd" id="potd">
       ${pictureFor(potd.item.yo) ? html`<div class="pic-tile">${raw(pictureFor(potd.item.yo, 64))}</div>` : ""}

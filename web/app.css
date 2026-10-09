@@ -595,3 +595,5 @@ html.charbar-on .tabbar { display: none; }
   .tabbar a.on { padding: 9px 12px 9px 9px; }
   .tabbar svg { width: 20px; height: 20px; }
 }
+
+.sticker .leaf { width: 0.95em; height: 0.95em; vertical-align: -0.12em; color: var(--sage); --sticker-vein: var(--sage-soft); }
