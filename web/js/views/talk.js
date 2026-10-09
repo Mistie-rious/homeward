@@ -1,0 +1,236 @@
+import { all, kvGet, kvSet } from "../db.js";
+import { hasKey } from "../claude.js";
+import { level } from "../content.js";
+import { canSpeak, speak, stopSpeaking } from "../speech.js";
+import { CHAT, SCENARIOS, allCorrections, endConversation, getConversation, scenarioById, startConversation, takeTurn } from "../talk.js";
+import { translate } from "../translate.js";
+import { busy, fmtDay, go, html, mark, toast } from "../util.js";
+
+const autoplay = () => kvGet("talk_autoplay", true);
+let pendingFirst = null; // first message typed on the Talk page, sent once the chat opens
+
+// ---------- scenario picker ----------
+
+export function talkHome(root) {
+  const past = all("SELECT id, title, setup, created_at, ended_at, messages FROM conversation ORDER BY created_at DESC LIMIT 15");
+  root.innerHTML = html`
+    <h1>Talk</h1>
+    ${hasKey() ? "" : html`<div class="card warn">Conversations need a Claude key. <a href="#/settings">Add one in Settings →</a></div>`}
+    <div class="card just-talk">
+      <p class="kind">💬 Just talk</p>
+      <p class="small muted">Chat with Tọ́lá about anything. You can also ask questions about Yoruba, even in English.</p>
+      <div class="row gap compose-row">
+        <textarea id="free" rows="1" placeholder="Báwo ni, Tọ́lá? …" autocapitalize="sentences" spellcheck="false"></textarea>
+        <button id="free-go" aria-label="Send">➤</button>
+      </div>
+    </div>
+    <h2>Situations</h2>
+    <p class="muted small">Pick a situation. Claude plays the other person at your level (${level()}). Type your answers (the letter row above the keyboard adds ẹ, ọ, ṣ and tone marks); corrections are saved for review.</p>
+    <div class="scenarios">${SCENARIOS.map((s) => html`
+      <button class="scenario" data-s="${s.id}"><span class="emoji">${s.emoji}</span><span>${s.title}</span></button>`)}
+      <button class="scenario" data-s="custom"><span class="emoji">✏️</span><span>My own situation</span></button>
+    </div>
+    <div class="card stack" id="custom" hidden>
+      <strong>Describe the situation</strong>
+      <textarea id="custom-text" rows="3" placeholder="e.g. Asking a tailor to make a shirt"></textarea>
+      <button id="custom-go">Start</button>
+    </div>
+    ${past.length ? html`
+      <h2>Recent conversations</h2>
+      <ul class="list">${past.map((c) => {
+        const n = JSON.parse(c.messages).filter((m) => m.role === "me").length;
+        return html`<li><a class="card row between gap" href="#/talk/${c.id}">
+          <span class="grow"><strong>${JSON.parse(c.setup).emoji || "💬"} ${c.title}</strong><small class="muted">${fmtDay(c.created_at)} · ${n} message${n === 1 ? "" : "s"}${c.ended_at ? " · finished" : ""}</small></span>
+          <span class="chev">→</span></a></li>`;
+      })}</ul>` : ""}`;
+
+  const begin = (scenario) => {
+    if (!hasKey()) return toast("Add a Claude key in Settings first");
+    go(`#/talk/${startConversation(scenario, level())}`);
+  };
+  root.querySelector(".scenarios").onclick = (e) => {
+    const b = e.target.closest("[data-s]");
+    if (!b) return;
+    if (b.dataset.s === "custom") {
+      root.querySelector("#custom").hidden = false;
+      root.querySelector("#custom-text").focus();
+    } else begin(scenarioById(b.dataset.s));
+  };
+  const free = root.querySelector("#free");
+  const goFree = () => {
+    const text = free.value.trim();
+    if (!text) return free.focus();
+    if (!hasKey()) return toast("Add a Claude key in Settings first");
+    pendingFirst = text;
+    go(`#/talk/${startConversation(CHAT, level())}`);
+  };
+  root.querySelector("#free-go").onclick = goFree;
+  free.onkeydown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      goFree();
+    }
+  };
+  root.querySelector("#custom-go").onclick = () => {
+    const text = root.querySelector("#custom-text").value.trim();
+    if (!text) return;
+    begin({ id: "custom", emoji: "✏️", title: text.length > 40 ? `${text.slice(0, 38)}…` : text,
+      role: "whoever the learner would naturally be talking to in this situation", setting: text,
+      goal: "Handle the situation successfully.", register: "ẹ" });
+  };
+}
+
+// ---------- chat ----------
+
+export async function talkChat(root, { params: [id] }) {
+  const c = getConversation(Number(id));
+  if (!c) return go("#/talk");
+
+  root.innerHTML = html`
+    <header class="chat-head">
+      <a href="#/talk" class="back">← Talk</a>
+      <h1>${c.setup.emoji} ${c.title}</h1>
+      ${c.setup.goal ? html`<p class="small muted goal">🎯 ${c.setup.goal}</p>` : html`<p class="small muted goal">Ask anything about Yoruba too, even in English.</p>`}
+      <label class="small muted autoplay voice-only"><input type="checkbox" id="autoplay" ${autoplay() ? "checked" : ""}> Read replies aloud</label>
+    </header>
+    <div id="chat" class="chat"></div>
+    <div id="composer" class="composer" ${c.ended_at ? "hidden" : ""}>
+      <div class="row gap">
+        <button class="secondary small-btn" id="hint">💡 Hint</button>
+        <span class="grow"></span>
+        <button class="secondary small-btn" id="end">Finish</button>
+      </div>
+      <div class="row gap compose-row">
+        <textarea id="say" rows="1" placeholder="Write in Yoruba…" autocapitalize="sentences" spellcheck="false"></textarea>
+        <button id="send" aria-label="Send">➤</button>
+      </div>
+    </div>
+    <div id="summary"></div>`;
+
+  const chat = root.querySelector("#chat");
+  const input = root.querySelector("#say");
+  const sendBtn = root.querySelector("#send");
+  root.querySelector("#autoplay").onchange = (e) => kvSet("talk_autoplay", e.target.checked);
+
+  const renderMessages = () => {
+    chat.innerHTML = html`${c.messages.map((m, i) => m.role === "ai"
+      ? html`
+        <div class="bubble ai" data-i="${i}">
+          <p class="yo">${m.text}</p>
+          <div class="bubble-tools">
+            <button class="say" data-say="${m.text}" aria-label="Play">🔊</button>
+            <button class="say" data-en="${i}" aria-label="Translate">🇬🇧</button>
+          </div>
+          <p class="small muted en" hidden></p>
+        </div>`
+      : html`
+        <div class="bubble me">
+          <p class="yo">${m.text}</p>
+          ${m.corrections == null ? html`<p class="tiny muted">…</p>`
+            : m.corrections.length ? html`
+              <details class="fixes"><summary>${m.corrections.length} fix${m.corrections.length > 1 ? "es" : ""}</summary>
+                ${m.corrections.map((e) => html`<p class="small yo"><s>${e.original}</s> → <b>${e.suggestion}</b><br><span class="muted">${e.explanation}</span></p>`)}
+              </details>`
+            : html`<p class="tiny ok-mark">✓ perfect</p>`}
+        </div>`)}`;
+    chat.lastElementChild?.scrollIntoView({ behavior: "smooth", block: "end" });
+  };
+
+  chat.onclick = (e) => {
+    const b = e.target.closest("[data-en]");
+    if (!b) return;
+    const bubble = b.closest(".bubble");
+    const out = bubble.querySelector(".en");
+    if (!out.hidden) return (out.hidden = true);
+    translate(c.messages[Number(b.dataset.en)].text).then((en) => { out.textContent = en; out.hidden = false; }, (err) => toast(err.message));
+  };
+
+  const thinking = (on) => {
+    sendBtn.disabled = on;
+    chat.querySelector(".typing")?.remove();
+    if (on) chat.insertAdjacentHTML("beforeend", `<div class="bubble ai typing"><p><span></span><span></span><span></span></p></div>`);
+    chat.lastElementChild?.scrollIntoView({ behavior: "smooth", block: "end" });
+  };
+
+  const turn = async (said) => {
+    thinking(true);
+    try {
+      await takeTurn(c, said);
+      renderMessages();
+      const last = c.messages.at(-1);
+      if (autoplay() && canSpeak()) speak(last.text);
+      if (c.setup.goal && last.goalDone && !c.goalToastShown) {
+        c.goalToastShown = true;
+        toast("🎯 Goal reached! Keep chatting or tap Finish.", 4000);
+      }
+    } catch (err) {
+      renderMessages();
+      toast(err.message, 5000);
+    } finally {
+      thinking(false);
+    }
+  };
+
+  renderMessages();
+  if (!c.messages.length && !c.ended_at) {
+    if (pendingFirst) {
+      const first = pendingFirst;
+      pendingFirst = null;
+      c.messages.push({ role: "me", text: first });
+      renderMessages();
+      c.messages.pop();
+      turn(first); // you start the chat
+    } else turn(null); // Claude opens the scene
+  }
+  if (c.ended_at) showSummary();
+
+  const send = () => {
+    const text = input.value.trim();
+    if (!text || sendBtn.disabled) return;
+    input.value = "";
+    autosize();
+    stopSpeaking();
+    c.messages.push({ role: "me", text });
+    renderMessages();
+    c.messages.pop(); // takeTurn adds it for real (and saves)
+    turn(text);
+  };
+  sendBtn.onclick = send;
+  input.onkeydown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  };
+  const autosize = () => {
+    input.style.height = "auto";
+    input.style.height = `${Math.min(input.scrollHeight, 140)}px`;
+  };
+  input.oninput = autosize;
+
+  root.querySelector("#hint").onclick = () => {
+    const s = [...c.messages].reverse().find((m) => m.role === "ai")?.suggestion;
+    if (!s) return toast("No hint yet");
+    toast(`💡 ${s}`, 6000);
+  };
+
+  root.querySelector("#end").onclick = () => {
+    stopSpeaking();
+    endConversation(c);
+    c.ended_at = Date.now();
+    root.querySelector("#composer").hidden = true;
+    showSummary();
+  };
+
+  function showSummary() {
+    const fixes = allCorrections(c);
+    const said = c.messages.filter((m) => m.role === "me").length;
+    root.querySelector("#summary").innerHTML = html`
+      <div class="card stack summary">
+        <p class="score ${fixes.length ? "" : "good"}">${fixes.length ? "Well done!" : "Perfect!"}</p>
+        <p>You sent ${said} message${said === 1 ? "" : "s"}${fixes.length ? ` with ${fixes.length} thing${fixes.length > 1 ? "s" : ""} to fix. They're in your reviews now.` : " without a single mistake."}</p>
+        ${fixes.map((e) => html`<div class="fix-line"><p class="small yo">${mark(e.said.replace(e.original, `[[${e.original}]]`))}</p><p class="small yo"><b>${e.suggestion}</b> · <span class="muted">${e.explanation}</span></p></div>`)}
+        <a class="button wide" href="#/talk">Another conversation</a>
+      </div>`;
+  }
+}
