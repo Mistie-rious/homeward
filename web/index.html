@@ -8,17 +8,16 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-180.png">
-  <meta name="theme-color" content="#f6f5f2">
+  <meta name="theme-color" content="#0e1813">
   <script>
-    // Apply the saved theme and font before first paint (light by default). Keys are prefixed hw_ because other apps share this origin.
+    // Apply the saved theme and font before first paint (dark by default). Keys are prefixed hw_ because other apps share this origin.
     try {
-      document.documentElement.dataset.theme = localStorage.getItem("hw_theme") || "light";
+      document.documentElement.dataset.theme = localStorage.getItem("hw_theme") || "dark";
       document.documentElement.dataset.yofont = localStorage.getItem("hw_yofont") === "serif" ? "serif" : "system";
-    } catch { document.documentElement.dataset.theme = "light"; }
+    } catch { document.documentElement.dataset.theme = "dark"; }
   </script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Homeward">
-  <link rel="preload" href="fonts/instrument-serif-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="app.css">
   <script src="vendor/sql-wasm.js"></script>
   <script src="vendor/ts-fsrs.js"></script>

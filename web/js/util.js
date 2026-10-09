@@ -76,7 +76,7 @@ export const LS_PREFIX = "hw_";
 // ---- theme ----
 const THEME_KEY = `${LS_PREFIX}theme`;
 export const getTheme = () => {
-  try { return localStorage.getItem(THEME_KEY) || "light"; } catch { return "light"; }
+  try { return localStorage.getItem(THEME_KEY) || "dark"; } catch { return "dark"; }
 };
 export function setTheme(t) {
   try { localStorage.setItem(THEME_KEY, t); } catch {}
@@ -97,7 +97,7 @@ export function applyTheme() {
   document.documentElement.dataset.theme = t;
   document.documentElement.dataset.yofont = getYoFont();
   const dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#18171c" : "#f6f5f2");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0e1813" : "#f3efe2");
 }
 
 // ---- navigation ----

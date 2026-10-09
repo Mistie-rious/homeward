@@ -130,7 +130,7 @@ export default function reviewView(root, { query }) {
     suggested = verdict === "ok" ? 3 : verdict === "almost" ? 2 : 1;
     slot.innerHTML = html`
       <div class="verdict ${verdict}">
-        <p class="score">${verdict === "ok" ? "Correct!" : verdict === "almost" ? "Almost!" : "Not quite"}</p>
+        <p class="score">${verdict === "ok" ? "Ó dára! Correct" : verdict === "almost" ? "Almost!" : "Not quite"}</p>
         ${verdict !== "ok" ? html`<p class="small">You wrote: <s>${answer}</s></p>` : html`<p class="small">You wrote: ${answer}</p>`}
         ${note ? html`<p class="small">${note}</p>` : ""}
         ${better ? html`<p class="small good">${better}</p>` : ""}

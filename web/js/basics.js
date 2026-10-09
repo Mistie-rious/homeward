@@ -81,5 +81,12 @@ export function progress() {
   });
 }
 
+/** A different sentence every day (same all day), as {unit, index, item}. */
+export function phraseOfDay(date = new Date()) {
+  const all = UNITS.flatMap((unit) => unit.phrases.map((item, index) => ({ unit, index, item })));
+  const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+  return all[day % all.length];
+}
+
 /** Course items added today (for the Today checklist). */
 export const addedToday = (since) => get("SELECT COUNT(*) AS n FROM item WHERE ref IS NOT NULL AND created_at >= ?", [since]).n;

@@ -9,7 +9,6 @@ const FILES = [
   "js/content.js", "js/progress.js", "js/seed.js", "js/translate.js", "js/answers.js", "js/speech.js", "js/chars.js", "js/pictures.js", "js/pronounce.js", "js/lessons.js", "js/talk.js", "js/story.js",
   "js/views/today.js", "js/views/review.js", "js/views/read.js", "js/views/write.js", "js/views/me.js", "js/views/learn.js", "js/views/talk.js", "js/views/ask.js", "js/screentime.js",
   "vendor/sql-wasm.js", "vendor/sql-wasm.wasm", "vendor/ts-fsrs.js",
-  "fonts/instrument-serif-latin-400-normal.woff2", "fonts/instrument-serif-latin-400-italic.woff2",
   "icons/icon.svg", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png",
 ];
 
