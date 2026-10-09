@@ -6,6 +6,7 @@ import { UNITS, unitById } from "../course.js";
 import { addCourseItem, addUnit, addedRefs, progress, refOf } from "../basics.js";
 import { GROUPS, LESSONS, lessonById } from "../lessons.js";
 import { lemmaCandidates, lookup } from "../nlp.js";
+import { pictureFor } from "../pictures.js";
 import { canSpeak, speak } from "../speech.js";
 import { queue, settings } from "../srs.js";
 import { myItemIds } from "../progress.js";
@@ -84,6 +85,7 @@ export function unitView(root, { params: [id], query }) {
     <ul class="list" id="items">${items.map((x, i) => html`
       <li class="card word-card" data-i="${i}">
         <div class="row between gap">
+          ${pictureFor(x.yo) ? html`<div class="pic-tile">${raw(pictureFor(x.yo, 64))}</div>` : ""}
           <div class="grow">
             <p class="big yo">${x.yo} ${sayBtn(x.yo)}</p>
             <p>${x.en}${x.pos ? html` <small class="muted inline">${x.pos}</small>` : ""}</p>

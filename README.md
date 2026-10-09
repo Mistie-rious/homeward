@@ -7,6 +7,7 @@ There's no server. Everything runs in the phone's browser:
 - **Data**: SQLite (sql.js) saved in the browser's IndexedDB. *Me → My data* lets you browse/edit it, export CSV, and back up/restore the `.db` file (opens in any SQLite viewer).
 - **Claude**: called directly from the phone with your own API key (Settings; stored only on the device, never in backups). Pick the model in Settings: Haiku 4.5 (default, cheapest), Sonnet 5.5 or Opus 5.5 (more reliable for a lower-resource language). Settings shows this month's spend, priced per model.
 - **Without a key** it still works for the course, review, the offline dictionary and the built-in dialogues. Writing corrections, conversations, the question chat and the serial story need a key and say so clearly.
+- **Pictures**: every common word (people, things, places, actions, numbers, days) and many sentences have a small drawn picture (`web/js/pictures.js`, inline SVG, works offline). They show on Basics cards, as a hint on typing cards and as the reward on the answer side.
 - **Hosting**: static files on GitHub Pages ($0).
 
 ## Review the content with a native speaker
@@ -47,6 +48,7 @@ This app can share a GitHub Pages origin with other apps, so it keeps to its own
 web/
   index.html, app.css, sw.js, manifest.webmanifest
   js/course.js      Basics units (words + sentences) and the built-in dialogues
+  js/pictures.js    drawn SVG pictures for words and sentences
   js/basics.js      adding course items/units to the reviews, per-unit progress
   js/nlp.js         NFC, tokeniser, offline dictionary built from the course
   js/answers.js     typed-answer checking (marks → "almost")

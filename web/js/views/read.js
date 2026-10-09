@@ -5,6 +5,7 @@ import {
   savedLemmas, savedSentences, saveSentence, saveWord,
 } from "../content.js";
 import { lemmaCandidates, lookup, stripSpeaker, tokenize } from "../nlp.js";
+import { pictureFor } from "../pictures.js";
 import { translate } from "../translate.js";
 import { GENRES, currentStory, endStory, episodes, nextEpisode, startStory, storyOf } from "../story.js";
 import { speakSequence, stopSpeaking } from "../speech.js";
@@ -279,7 +280,7 @@ export function reader(root, { params: [id] }) {
           <button class="wide" id="save-claude">Save to review</button>` : ""}
         ${entries.length ? html`
           <ul class="dict">${entries.slice(0, 4).map((d, i) => html`
-            <li><span class="grow"><strong>${d.lemma}</strong> <small class="muted inline">${d.pos}${d.approx ? " · matched without tone marks" : d.part ? " · part of a longer entry" : ""}</small> — ${d.gloss}</span>
+            <li>${pictureFor(d.lemma) ? html`<span class="pic-tile small">${raw(pictureFor(d.lemma, 44))}</span>` : ""}<span class="grow"><strong>${d.lemma}</strong> <small class="muted inline">${d.pos}${d.approx ? " · matched without tone marks" : d.part ? " · part of a longer entry" : ""}</small> — ${d.gloss}</span>
             <button class="small-btn" data-save-dict="${i}">Save</button></li>`)}</ul>`
           : g ? "" : html`
           <p class="small muted">Not in the offline dictionary${hasKey() ? " (try Ask Claude)" : ""}, or add it yourself:</p>

@@ -1,7 +1,8 @@
 import { run } from "../db.js";
+import { pictureFor } from "../pictures.js";
 import { previews, queue, review, settings } from "../srs.js";
 import { myItemIds, reviewedToday, todaysMistakeIds } from "../progress.js";
-import { fmtInterval, go, html, mark } from "../util.js";
+import { fmtInterval, go, html, mark, raw } from "../util.js";
 import { MARKS_NOTE, checkTyped, gradeFix } from "../answers.js";
 import { judgeFix } from "../correction.js";
 import { hasKey } from "../claude.js";
@@ -39,9 +40,13 @@ export default function reviewView(root, { query }) {
   const produce = card.template === "produce"; // English → Yoruba, typed
   const checkable = card.kind === "mistake" || produce;
   const say = (t) => html`<button class="say" data-say="${t.replace(/\[\[|\]\]/g, "")}" aria-label="Pronounce">🔊</button>`;
+  // course words and sentences have a drawn picture: a hint on typing cards, a reward on the answer side otherwise
+  const pic = pictureFor(card.kind === "word" ? card.lemma || card.front : card.front, 112);
+  const picTile = pic ? html`<div class="pic-tile large">${raw(pic)}</div>` : "";
   const body = produce
     ? html`
         <p class="kind">${card.kind === "word" ? "word" : "sentence"} · type it in Yoruba</p>
+        ${picTile}
         <p class="big">${card.back}</p>
         ${card.context_en && card.kind === "word" ? html`<p class="muted small">e.g. ${card.context_en}</p>` : ""}
         <p class="small muted">Tone marks and underdots help, but leaving them out only counts as “almost”.</p>
@@ -55,6 +60,7 @@ export default function reviewView(root, { query }) {
         <p class="kind">sentence · translate it</p>
         <p class="context yo">${card.front} ${say(card.front)}</p>
         <div class="answer">
+          ${picTile}
           <p class="context accent">${card.back}</p>
           ${card.note ? html`<p class="note">${card.note}</p>` : ""}
         </div>`
@@ -63,6 +69,7 @@ export default function reviewView(root, { query }) {
         <p class="kind">word</p>
         ${card.context ? html`<p class="context yo">${mark(card.context)} ${say(card.context)}</p>` : html`<p class="big yo">${card.front} ${say(card.front)}</p>`}
         <div class="answer">
+          ${picTile}
           <p class="big yo">${card.front} ${say(card.front)}</p>
           <p class="big accent">${card.back}</p>
           ${card.context_en ? html`<p class="muted">${card.context_en}</p>` : ""}
