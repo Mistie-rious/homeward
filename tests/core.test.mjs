@@ -131,8 +131,8 @@ test("dictionary: exact lookup, marks-stripped fallback, parts of longer entries
   assert.equal(nlp.knownTranslation("Mo fẹ́ lọ sí òṣupá."), null);
 });
 
-test("built-in dialogues: 3-4 beginner dialogues, one sentence per line, with English", () => {
-  assert.ok(course.DIALOGUES.length >= 3 && course.DIALOGUES.length <= 4);
+test("built-in dialogues: at least 8 beginner dialogues, one sentence per line, with English", () => {
+  assert.ok(course.DIALOGUES.length >= 8);
   for (const d of course.DIALOGUES) {
     assert.ok(d.lines.length >= 6);
     for (const l of d.lines) {
@@ -754,4 +754,42 @@ test("screen time: adds seconds per day, prunes old days, formats durations", as
   assert.equal(st.fmtDuration(20), "<1m");
   assert.equal(st.fmtDuration(23 * 60 + 5), "23m");
   assert.equal(st.fmtDuration(65 * 60), "1h 05m");
+});
+
+// ───────── drawn pictures ─────────
+
+test("pictures: most course words and many sentences have a drawn SVG; pictures need no network", async () => {
+  const pics = await import("../web/js/pictures.js");
+  let words = 0, withPic = 0, sentences = 0, sentPic = 0;
+  const bareFns = [];
+  for (const u of course.UNITS) {
+    for (const x of u.words) { words++; if (pics.hasPicture(x.yo)) withPic++; else bareFns.push(x.yo); }
+    for (const x of u.phrases) { sentences++; if (pics.hasPicture(x.yo)) sentPic++; }
+  }
+  assert.ok(withPic / words >= 0.95, `only ${withPic}/${words} words have a picture: ${bareFns.join(", ")}`);
+  assert.ok(sentPic >= 60, `${sentPic}/${sentences} sentences have a picture`);
+  // verbs, people and things are all represented
+  for (const w of ["lọ", "wá", "jẹ", "mu", "rà", "tà", "rí", "gbọ́", "sùn", "kàwé", "bàbá", "ìyá", "ọmọ", "ìyá àgbà", "dókítà", "olùkọ́", "ìrẹsì", "ẹja", "ọjà", "ilé", "ọkọ̀", "Ọjọ́ Àìkú"]) assert.ok(pics.hasPicture(w), w);
+  const svg = pics.pictureFor("ọmọ", 80);
+  assert.match(svg, /^<svg class="pic" viewBox="0 0 64 64" width="80" height="80"/);
+  assert.ok(!/(https?:)?\/\/(?!www\.w3\.org)/.test(svg.replace(/xmlns="[^"]+"/, "")), "no external references");
+  assert.equal(pics.pictureFor("zzz"), "");
+  assert.equal(pics.hasPicture("ỌMỌ"), true); // case-insensitive, NFC
+  assert.equal(pics.hasPicture("ọmọ"), true); // typed with combining dots
+  // every picture is well-formed enough: balanced tags, and valid numbers (no NaN from the drawing helpers)
+  for (const k of pics.pictureKeys()) {
+    const s = pics.pictureFor(k);
+    assert.ok(!/NaN|undefined/.test(s), k);
+    assert.equal((s.match(/<g[ >]/g) || []).length, (s.match(/<\/g>/g) || []).length, k);
+  }
+});
+
+test("typing and answer cards use the picture lookup that matches how course items are stored", async () => {
+  await fresh();
+  const pics = await import("../web/js/pictures.js");
+  basics.addCourseItem("verbs", "w", 0); // lọ
+  basics.addCourseItem("greetings", "p", 0); // Ẹ káàárọ̀.
+  const w = db.get("SELECT lemma, front FROM item WHERE ref = 'verbs:w:0'");
+  const p = db.get("SELECT front FROM item WHERE ref = 'greetings:p:0'");
+  assert.ok(pics.pictureFor(w.lemma) && pics.pictureFor(p.front));
 });

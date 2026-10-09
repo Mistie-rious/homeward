@@ -26,7 +26,7 @@ const PROMPTS_A2 = [
   "Write a message inviting a friend to a meal. (Ṣé o lè wá…? · oúnjẹ)",
   "Describe your daily routine from morning to night. (Ní àárọ̀… · Ní ọ̀sán… · Ní òru…)",
   "Tell a friend what you are learning and why. (Mo ń kọ́ Yorùbá nítorí…)",
-  "You feel ill. Explain to a doctor how you feel. (Orí ń fọ́ mí · Ikùn ń dùn mí)",
+  "You feel ill. Explain to a doctor how you feel. (Orí ń fọ́ mi · Ikùn ń dùn mí)",
   "Ask for directions to the hospital and write the answer you imagine. (Ibo ni… wà? · Yà sí ọ̀tún)",
   "Describe the people in your family and what they do. (Ẹ̀gbọ́n mi jẹ́… · Ó ń ṣiṣẹ́…)",
   "Plan next week: what will you do on three different days? (Mo máa… · Ọjọ́ Ajé…)",
